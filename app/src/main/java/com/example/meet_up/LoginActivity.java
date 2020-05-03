@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.MeetUpApplication;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -38,7 +39,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mActivity = this;
-        mAuth = FirebaseAuth.getInstance();
+
+        mAuth = MeetUpApplication.getInstance().getAuth();
+
+        if(MeetUpApplication.getInstance().getUser() != null) {
+            updateUI();
+        }
 
         mEmail = findViewById(R.id.login_email);
         mPassword = findViewById(R.id.login_password);
@@ -76,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(mActivity, "Authentication Successful.",
                                     Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            updateUI();
                         } else {
                             Toast.makeText(mActivity, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
@@ -86,9 +92,9 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
-        Intent mapsIntent = new Intent(mActivity, MapsActivity.class);
-        startActivity(mapsIntent);
+    private void updateUI() {
+        Intent homeIntent = new Intent(mActivity, HomeActivity.class);
+        startActivity(homeIntent);
         finishActivity(0);
     }
 }

@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:enabled="true"
-        android:text="@string/action_sign_in"
+        android:text="@string/action_sign_up"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/signup_password_confirm"/>
 

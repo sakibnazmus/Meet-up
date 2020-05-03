@@ -1,9 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity" />
+    tools:context=".MapsActivity" >
+
+    <LinearLayout
+        android:id="@+id/button_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        >
+        <Button
+            android:id="@+id/map_refresh_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Refresh"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAllCaps="false"/>
+        <Button
+            android:id="@+id/enable_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Enable"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:gravity="center"
+            android:textAllCaps="false"/>
+        <Button
+            android:id="@+id/group_settings_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAllCaps="false"/>
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_below="@id/button_holder"
+        />
+
+    <fragment
+        android:id="@+id/settingFrgmnt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.example.meet_up.SettingsFragment"
+        android:layout_below="@id/button_holder"
+        />
+
+</RelativeLayout>

@@ -18,10 +18,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 
 public class SignupActivity extends AppCompatActivity {
     private Activity mActivity;
     private FirebaseAuth mAuth;
+    private DatabaseReference mUsersReference;
 
     private EditText mEmail;
     private EditText mPass;
@@ -32,10 +34,11 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sigup);
+        setContentView(R.layout.activity_signup);
 
         mActivity = this;
         mAuth = MeetUpApplication.getInstance().getAuth();
+        mUsersReference = MeetUpApplication.getInstance().getUsersReference();
 
         mEmail = findViewById(R.id.signup_email);
         mPass = findViewById(R.id.signup_password);
@@ -48,7 +51,7 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String pass1 = mPass.getText().toString();
                 String pass2 = mConfirm.getText().toString();
-                if(pass1.equals(pass2)) {
+                if (pass1.equals(pass2)) {
                     String email = mEmail.getText().toString();
                     mLoading.setVisibility(View.VISIBLE);
                     createNewUser(email, pass1);
@@ -70,7 +73,10 @@ public class SignupActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(mActivity, "Authentication Successful.",
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(user);
+
+                            mUsersReference.child(user.getUid()).child("email").setValue(user.getEmail());
+
+                            updateUI();
                         } else {
                             Toast.makeText(mActivity, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
@@ -80,9 +86,9 @@ public class SignupActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
-        Intent mapsIntent = new Intent(mActivity, MapsActivity.class);
-        startActivity(mapsIntent);
+    private void updateUI() {
+        Intent homeActivity = new Intent(mActivity, HomeActivity.class);
+        startActivity(homeActivity);
         finishActivity(0);
     }
 }
