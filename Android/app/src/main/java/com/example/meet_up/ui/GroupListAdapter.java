@@ -12,13 +12,9 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-
 import java.util.ArrayList;
 
-public class GroupListAdapter extends ArrayAdapter<String> implements ChildEventListener {
+public class GroupListAdapter extends ArrayAdapter<String> {
 
     private class GroupNameHolder {
         Button groupNameBtn;
@@ -50,45 +46,6 @@ public class GroupListAdapter extends ArrayAdapter<String> implements ChildEvent
         mActivity = activity;
         groupList = groups;
         mInflater = mActivity.getLayoutInflater();
-    }
-
-    @Override
-    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-        String groupName = dataSnapshot.getValue().toString();
-        if(!groupList.contains(groupName)){
-            Log.v("Group", "Child added " + groupName);
-            groupList.add(groupName);
-            notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-    }
-
-    @Override
-    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-        String removedGroup = dataSnapshot.getValue().toString();
-        Log.v("Group", "Child removed " + removedGroup);
-        for(String groupName: groupList) {
-            if(groupName.equals(removedGroup)) {
-                Log.v("Group", "Removing child " + groupName);
-                groupList.remove(groupName);
-                notifyDataSetChanged();
-                break;
-            }
-        }
-    }
-
-    @Override
-    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-    }
-
-    @Override
-    public void onCancelled(@NonNull DatabaseError databaseError) {
-
     }
 
     @NonNull

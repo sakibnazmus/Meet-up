@@ -12,13 +12,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -36,11 +33,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -55,9 +47,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
 
     private LocationManager mLocationManager;
-
-    private DatabaseReference mGroupReference;
-    private FirebaseUser user;
 
     private String selectedGroupName;
 
@@ -80,18 +69,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         checkPermissions();
-        user = MeetUpApplication.getInstance().getUser();
 
         selectedGroupName = getIntent().getStringExtra(Const.INTENT_EXTRA_GROUP_NAME);
-        mGroupReference = MeetUpApplication.getInstance().getGroupsReference().child(selectedGroupName);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mRefreshBtn = findViewById(R.id.map_refresh_btn);
         mEnableBtn = findViewById(R.id.enable_btn);
         mSettingsBtn = findViewById(R.id.group_settings_btn);
@@ -114,11 +99,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 mEnableBtn.setEnabled(false);
-                if(mEnableBtn.getText().equals("Enable")) {
-                    mGroupReference.child("users").child(user.getUid()).setValue(true);
-                } else {
-                    mGroupReference.child("users").child(user.getUid()).setValue(false);
-                }
             }
         });
 
@@ -142,7 +122,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         handler = new Handler();
 
         mGroupLocationlistener = new GroupLocationListener(this);
-        mGroupReference.child("users").addChildEventListener(mGroupLocationlistener);
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -152,7 +131,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onServiceConnected(ComponentName className, IBinder service) {
             LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
             mService = binder.getService();
-            mLocationListener = new MeetUpLocationListener(MeetUpApplication.getInstance().getUser().getUid());
 
             if (!checkFineLocationPermission() || !checkCoarseLocationPermission()) {
                 Log.v(TAG, "Did not get permission for location update");
@@ -178,39 +156,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onStart() {
         super.onStart();
-        mGroupReference.child("users").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot == null) {
-                    Log.v("User Data", "dataSnapshot is null");
-                } else {
-                    for(DataSnapshot snapshot: dataSnapshot.getChildren()) {
-                        if(user.getUid().equals(snapshot.getKey())) {
-                            Log.v("User Data", "Value: " + snapshot.getValue().toString());
-                            Boolean isEnabled = (Boolean) snapshot.getValue();
-                            if(isEnabled) {
-                                mEnableBtn.setText("Disable");
-                                bindService(getServiceIntent(), connection, Context.BIND_AUTO_CREATE);
-                            } else {
-                                mEnableBtn.setText("Enable");
-                                if(mBound) {
-                                    mBound = false;
-                                    unbindService(connection);
-                                    mService.stopService();
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                mEnableBtn.setEnabled(true);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
     }
 
     private Intent getServiceIntent() {

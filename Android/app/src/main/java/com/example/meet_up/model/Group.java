@@ -1,6 +1,5 @@
 package com.example.meet_up;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

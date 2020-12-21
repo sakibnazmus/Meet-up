@@ -15,13 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.MeetUpApplication;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LocationService extends Service {
 
     private static final String TAG = "LocationService";
-
-    private FirebaseUser mUser;
 
     public class LocationBinder extends Binder {
         LocationService getService() {
@@ -35,7 +32,6 @@ public class LocationService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.v(TAG, "OnCreate()");
-        mUser = MeetUpApplication.getInstance().getUser();
 
         if (Build.VERSION.SDK_INT >= 26) {
             String CHANNEL_ID = "my_channel_01";
