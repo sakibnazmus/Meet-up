@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.service;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -14,14 +14,12 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.example.MeetUpApplication;
-
 public class LocationService extends Service {
 
     private static final String TAG = "LocationService";
 
     public class LocationBinder extends Binder {
-        LocationService getService() {
+        public LocationService getService() {
             return LocationService.this;
         }
     }

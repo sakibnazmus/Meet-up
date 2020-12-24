@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.model;
 
 import java.util.HashMap;
 import java.util.Map;

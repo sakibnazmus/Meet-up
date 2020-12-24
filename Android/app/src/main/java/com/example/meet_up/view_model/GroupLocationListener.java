@@ -1,7 +1,7 @@
-package com.example.meet_up;
+package com.example.meet_up.view_model;
 
 import com.example.meet_up.model.User;
-import com.example.meet_up.ui.MapsActivity;
+import com.example.meet_up.view.MapsActivity;
 
 import java.util.HashMap;
 

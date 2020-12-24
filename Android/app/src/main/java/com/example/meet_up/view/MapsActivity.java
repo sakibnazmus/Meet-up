@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.view;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -23,7 +23,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.MeetUpApplication;
+import com.example.meet_up.model.Location;
+import com.example.meet_up.util.Constants;
+import com.example.meet_up.view_model.GroupLocationListener;
+import com.example.meet_up.service.LocationService;
+import com.example.meet_up.R;
+import com.example.meet_up.model.User;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -70,7 +75,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         checkPermissions();
 
-        selectedGroupName = getIntent().getStringExtra(Const.INTENT_EXTRA_GROUP_NAME);
+        selectedGroupName = getIntent().getStringExtra(Constants.INTENT_EXTRA_GROUP_NAME);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -198,14 +203,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void updateMap(User user) {
         int hashMapPrevSize = markerHashMap.size();
-        User.Location userLocation = user.getLocation();
+        Location userLocation = user.getLocation();
         LatLng latLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-        if(markerHashMap.containsKey(user.getUid())) {
-            Marker prevMarker = markerHashMap.get(user.getUid());
+        if(markerHashMap.containsKey(user.getUserId())) {
+            Marker prevMarker = markerHashMap.get(user.getUserId());
             prevMarker.remove();
         }
-        Marker newMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getUid()));
-        markerHashMap.put(user.getUid(), newMarker);
+        Marker newMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getUserId()));
+        markerHashMap.put(user.getUserId(), newMarker);
 
         if(markerHashMap.size() != hashMapPrevSize) {
             adjustMap();

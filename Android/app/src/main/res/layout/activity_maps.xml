@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity" >
+    tools:context=".view.MapsActivity" >
 
     <LinearLayout
         android:id="@+id/button_holder"
@@ -52,7 +52,7 @@
         android:id="@+id/settingFrgmnt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.example.meet_up.SettingsFragment"
+        android:name="com.example.meet_up.view.SettingsFragment"
         android:layout_below="@id/button_holder"
         />
 

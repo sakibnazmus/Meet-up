@@ -1,6 +1,5 @@
-package com.example.meet_up;
+package com.example.meet_up.view;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -12,9 +11,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.MeetUpApplication;
+import com.example.meet_up.R;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
     private Activity mActivity;
 
     private EditText mEmail;

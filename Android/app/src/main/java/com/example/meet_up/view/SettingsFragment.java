@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.view;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -11,6 +11,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.meet_up.R;
+import com.example.meet_up.view_model.SettingsViewModel;
 
 public class SettingsFragment extends Fragment {
 

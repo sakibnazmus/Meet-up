@@ -1,26 +1,29 @@
-package com.example.meet_up.ui;
+package com.example.meet_up.view.login;
 
 import android.app.Activity;
 
 import android.content.Intent;
-import android.net.http.AndroidHttpClient;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.meet_up.R;
+import com.example.meet_up.databinding.ActivityLoginBinding;
+import com.example.meet_up.payload.request.GoogleSignInRequest;
+import com.example.meet_up.service.GoogleLogInService;
+import com.example.meet_up.view.HomeActivity;
+import com.example.meet_up.view.SignUpActivity;
+import com.example.meet_up.view_model.LoginViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
@@ -28,64 +31,39 @@ import com.google.android.gms.tasks.Task;
 public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_GOOGLE_SIGN_IN = 0;
-    private static final String TAG = "LoginActivity";
-    private Activity mActivity;
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private EditText mEmail;
-    private EditText mPassword;
-    private Button mLoginBtn;
+    private Activity mActivity;
+    private LoginViewModel mLoginViewModel;
+
     private TextView mSignUpText;
     private ProgressBar mLoadingProgressBar;
     private SignInButton mGoogleSignInBtn;
 
-    private GoogleSignInClient mGoogleSignInClient;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        ActivityLoginBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        mLoginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        binding.setLoginViewModel(mLoginViewModel);
+        binding.setLifecycleOwner(this);
 
         mActivity = this;
-
-        mEmail = findViewById(R.id.login_email);
-        mPassword = findViewById(R.id.login_password);
-        mLoginBtn = findViewById(R.id.login);
         mSignUpText = findViewById(R.id.signup_text);
         mLoadingProgressBar = findViewById(R.id.login_loading);
         mGoogleSignInBtn = findViewById(R.id.google_sign_in_btn);
 
         mGoogleSignInBtn.setSize(SignInButton.SIZE_WIDE);
 
-        mSignUpText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signUpIntent = new Intent(mActivity, SignUpActivity.class);
-                startActivity(signUpIntent);
-                finishActivity(0);
+        mLoginViewModel.isLoginSuccess().observe(this, isSuccess -> {
+            Log.i(TAG, "Changed Login SuccessValue: " + isSuccess);
+            if (isSuccess) {
+                Log.i(TAG, "Logged in successfully");
+                updateUI();
             }
         });
 
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkCredentials();
-                mLoadingProgressBar.setVisibility(View.VISIBLE);
-            }
-        });
-
-        mGoogleSignInBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
-            }
-        });
-
-        GoogleSignInOptions gso =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.server_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+//        mGoogleSignInBtn.setOnClickListener(this::googleSignIn);
     }
 
     @Override
@@ -106,6 +84,18 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void googleSignIn(View view) {
+        Log.v(TAG, "Google login button clicked");
+        Intent signInIntent = GoogleLogInService.getInstance(this).getClient().getSignInIntent();
+        startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
+    }
+
+    public void signUp(View view) {
+        Intent signUpIntent = new Intent(mActivity, SignUpActivity.class);
+        startActivity(signUpIntent);
+        finishActivity(0);
+    }
+
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -115,11 +105,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void checkCredentials() {
-        String email = mEmail.getText().toString();
-        String password = mPassword.getText().toString();
-    }
-
     private void updateUI(GoogleSignInAccount account) {
         Log.v(TAG, account.getEmail());
         Log.v(TAG, account.getDisplayName());
@@ -127,13 +112,19 @@ public class LoginActivity extends AppCompatActivity {
         Log.v(TAG, account.getIdToken());
 
         if(verifyWithServer(account.getIdToken())) {
-            Intent homeIntent = new Intent(mActivity, HomeActivity.class);
-            startActivity(homeIntent);
-            finishActivity(0);
+            updateUI();
         }
     }
 
+    private void updateUI() {
+        Intent homeIntent = new Intent(mActivity, HomeActivity.class);
+        startActivity(homeIntent);
+        finishActivity(0);
+    }
+
     private boolean verifyWithServer(String idToken) {
-        return true;
+        final GoogleSignInRequest request = new GoogleSignInRequest(idToken);
+
+        return false;
     }
 }

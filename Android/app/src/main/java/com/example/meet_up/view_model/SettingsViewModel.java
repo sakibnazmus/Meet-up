@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.view_model;
 
 import androidx.lifecycle.ViewModel;
 

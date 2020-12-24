@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_marginTop="40dp"
     android:layout_marginBottom="40dp"
-    tools:context=".HomeActivity">
+    tools:context=".view.HomeActivity">
 
     <ListView
         android:id="@+id/groups_lv"

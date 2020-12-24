@@ -1,51 +1,23 @@
-package com.example.meet_up;
+package com.example.meet_up.model;
+
+import com.example.meet_up.view_model.IndividualLocationListener;
 
 public class User {
 
-    class Location {
-        private double latitude = 91.0;
-        private double longitude = 181.0;
-        public Location(float latitude, float longitude) {
-            this.latitude = latitude;
-            this.longitude = longitude;
-        }
-
-        public Location() {}
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(double latitude) {
-            this.latitude = latitude;
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(double longitude) {
-            this.longitude = longitude;
-        }
-
-        public boolean isInvalid() {
-            return this.latitude > 90 || this.longitude > 180;
-        }
-    }
+    private String userId;
     private String email;
-    private String uid;
     private Location location;
     private String username;
     private boolean enabled;
     private IndividualLocationListener locationUpdater;
 
-    public User (String uid) {
-        this.uid = uid;
+    public User (String userId) {
+        this.userId = userId;
         this.location = new Location();
     }
 
-    public String getUid() {
-        return uid;
+    public String getUserId() {
+        return userId;
     }
 
     public Location getLocation() {

@@ -1,4 +1,4 @@
-package com.example.meet_up;
+package com.example.meet_up.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,6 +11,9 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.meet_up.util.Constants;
+import com.example.meet_up.R;
 
 import java.util.ArrayList;
 
@@ -27,7 +30,7 @@ public class GroupListAdapter extends ArrayAdapter<String> {
                     String group = groupNameBtn.getText().toString();
                     if(group != null) {
                         Intent mapsIntent = new Intent(mActivity, MapsActivity.class);
-                        mapsIntent.putExtra(Const.INTENT_EXTRA_GROUP_NAME, group);
+                        mapsIntent.putExtra(Constants.INTENT_EXTRA_GROUP_NAME, group);
                         mActivity.startActivity(mapsIntent);
                         mActivity.finishActivity(0);
                     }
