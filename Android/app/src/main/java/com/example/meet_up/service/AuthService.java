@@ -8,14 +8,18 @@ import com.example.meet_up.api.AuthApi;
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
 import com.example.meet_up.payload.request.EmailSignInRequest;
+import com.example.meet_up.payload.request.SignUpRequest;
+import com.example.meet_up.payload.response.ApiResponse;
 import com.example.meet_up.payload.response.LoginResponse;
 import com.example.meet_up.util.Constants;
+import com.google.gson.Gson;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.HTTP;
 
 public class AuthService {
 
@@ -28,11 +32,16 @@ public class AuthService {
 
     public MutableLiveData<Boolean> mIsLoginSuccess;
     public MutableLiveData<AuthToken> mAuthToken;
+    public MutableLiveData<Boolean> mIsSignUpSuccess;
+    public MutableLiveData<String> mResponseMessage;
 
     private AuthService() {
         mIsLoginSuccess = new MutableLiveData<>();
-        mIsLoginSuccess.setValue(Boolean.FALSE);
+        mIsSignUpSuccess = new MutableLiveData<>();
         mAuthToken = new MutableLiveData<>();
+        mResponseMessage = new MutableLiveData<>();
+        mIsLoginSuccess.setValue(Boolean.FALSE);
+        mIsSignUpSuccess.setValue(Boolean.FALSE);
 
         api = new Retrofit.Builder()
                 .baseUrl(url)
@@ -61,6 +70,39 @@ public class AuthService {
                 mIsLoginSuccess.setValue(Boolean.FALSE);
             }
         });
+    }
+
+    public void signUp(SignUpRequest signUpRequest) {
+        api.signUp(signUpRequest).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.v(TAG, response.toString());
+                ApiResponse apiResponse = null;
+                if (response.isSuccessful()) {
+                    apiResponse = response.body();
+                } else if (response.errorBody() != null) {
+                    apiResponse = new Gson().fromJson(response.errorBody().charStream(), ApiResponse.class);
+                }
+                if (apiResponse != null) {
+                    handleSignUpResponse(apiResponse);
+                } else {
+                    Log.e(TAG, "Api Response is null");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e(TAG, t.getLocalizedMessage());
+            }
+        });
+    }
+
+    private void handleSignUpResponse(ApiResponse apiResponse) {
+        Log.v(TAG, apiResponse.toString());
+        Boolean success = apiResponse.getSuccess();
+        String responseMessage = apiResponse.getMessage();
+        mIsSignUpSuccess.setValue(success);
+        mResponseMessage.setValue(responseMessage);
     }
 
     private void handleLoginResponse(LoginResponse loginResponse) {

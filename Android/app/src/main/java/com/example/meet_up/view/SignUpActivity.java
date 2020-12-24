@@ -1,64 +1,54 @@
 package com.example.meet_up.view;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.meet_up.R;
+import com.example.meet_up.databinding.ActivitySignupBinding;
+import com.example.meet_up.view.login.LoginActivity;
+import com.example.meet_up.view_model.SignUpViewModel;
 
 public class SignUpActivity extends AppCompatActivity {
-    private Activity mActivity;
 
-    private EditText mEmail;
-    private EditText mPass;
-    private EditText mConfirm;
-    private Button mSignUpBtn;
+    private Activity mActivity;
+    private SignUpViewModel mSignUpViewModel;
+
     private ProgressBar mLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        ActivitySignupBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_signup);
+        mSignUpViewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
+        binding.setSignUpViewModel(mSignUpViewModel);
+        binding.setLifecycleOwner(this);
 
         mActivity = this;
-
-        mEmail = findViewById(R.id.signup_email);
-        mPass = findViewById(R.id.signup_password);
-        mConfirm = findViewById(R.id.signup_password_confirm);
-        mSignUpBtn = findViewById(R.id.signup);
         mLoading = findViewById(R.id.signup_loading);
 
-        mSignUpBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String pass1 = mPass.getText().toString();
-                String pass2 = mConfirm.getText().toString();
-                if (pass1.equals(pass2)) {
-                    String email = mEmail.getText().toString();
-                    mLoading.setVisibility(View.VISIBLE);
-                    createNewUser(email, pass1);
-                } else {
-                    Toast.makeText(mActivity, "Authentication Failed. Passwords do not match",
-                            Toast.LENGTH_SHORT).show();
-                }
+        mSignUpViewModel.getResponseMessage().observe(this, this::showToast);
+        mSignUpViewModel.getSignUpSuccess().observe(this, success -> {
+            if (success) {
+                updateUI();
             }
         });
     }
 
-    private void createNewUser(String email, String pass) {
-
+    private void updateUI() {
+        Intent loginActivity = new Intent(mActivity, LoginActivity.class);
+        startActivity(loginActivity);
+        finishActivity(0);
     }
 
-    private void updateUI() {
-        Intent homeActivity = new Intent(mActivity, HomeActivity.class);
-        startActivity(homeActivity);
-        finishActivity(0);
+    private void showToast(String text) {
+        Toast.makeText(mActivity, text, Toast.LENGTH_LONG).show();
     }
 }
