@@ -55,11 +55,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         UserPrincipal user = (UserPrincipal) authentication.getPrincipal();
 
         String jwt = tokenProvider.generateToken(authentication);
-        return new AuthenticationResponse(jwt, user.getName());
+        return new AuthenticationResponse(jwt, user.getId(), user.getUsername(), user.getName());
     }
 
     @Override
-    public AuthenticationManager authenticateUser(OAuth2LoginRequest loginRequest) {
+    public AuthenticationResponse authenticateUser(OAuth2LoginRequest loginRequest) {
         return null;
     }
 

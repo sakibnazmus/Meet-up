@@ -21,4 +21,13 @@ public class SignUpRequest {
 
     @NotBlank
     private String password;
+
+    @Override
+    public String toString() {
+        return "SignUpRequest{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

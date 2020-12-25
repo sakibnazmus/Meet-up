@@ -2,6 +2,7 @@ package com.example.meetup.controller;
 
 import com.example.meetup.model.User;
 import com.example.meetup.payload.request.EmailLoginRequest;
+import com.example.meetup.payload.request.OAuth2LoginRequest;
 import com.example.meetup.payload.request.SignUpRequest;
 import com.example.meetup.payload.response.ApiResponse;
 import com.example.meetup.service.AuthenticationService;
@@ -28,7 +29,7 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/login/email")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody EmailLoginRequest loginRequest) {
         return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest));
     }
@@ -50,4 +51,10 @@ public class AuthController {
                 "User Registered Successfully!!!"
         ));
     }
+
+    @PostMapping("/oauth2/google")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody OAuth2LoginRequest loginRequest) {
+        return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest));
+    }
+
 }
