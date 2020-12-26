@@ -10,6 +10,12 @@ public class AuthToken {
         this.accessToken = accessToken;
     }
 
+    public AuthToken(String authToken) {
+        String[] tokens = authToken.split(" ");
+        this.tokenType = tokens[0];
+        this.accessToken = tokens[1];
+    }
+
     public String getAuthToken() {
         return tokenType + " " + accessToken;
     }

@@ -3,7 +3,6 @@ package com.example.meet_up.view;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -17,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.meet_up.R;
-import com.example.meet_up.view.login.LoginActivity;
 import com.example.meet_up.view_model.UserProfileViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

@@ -1,4 +1,4 @@
-package com.example.meet_up.view.login;
+package com.example.meet_up.view;
 
 import android.app.Activity;
 
@@ -14,10 +14,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.meet_up.R;
 import com.example.meet_up.databinding.ActivityLoginBinding;
-import com.example.meet_up.payload.request.GoogleSignInRequest;
 import com.example.meet_up.service.GoogleLogInService;
 import com.example.meet_up.view.HomeActivity;
 import com.example.meet_up.view.SignUpActivity;
@@ -55,10 +55,17 @@ public class LoginActivity extends AppCompatActivity {
 
         mGoogleSignInBtn.setSize(SignInButton.SIZE_WIDE);
 
-        mLoginViewModel.isLoginSuccess().observe(this, isSuccess -> {
+        mLoginViewModel.isLoginSuccess(this).observe(this, isSuccess -> {
             Log.i(TAG, "Changed Login SuccessValue: " + isSuccess);
             if (isSuccess) {
                 Log.i(TAG, "Logged in successfully");
+                updateUI();
+            }
+        });
+
+        mLoginViewModel.getAuthToken(this).observe(this, authToken -> {
+            if (authToken != null) {
+                Toast.makeText(this, "Logged in successfully!", Toast.LENGTH_LONG).show();
                 updateUI();
             }
         });
@@ -95,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            if (account != null) mLoginViewModel.googleSignIn(account);
+            if (account != null) mLoginViewModel.googleSignIn(mActivity, account);
         } catch (ApiException e) {
             e.printStackTrace();
         }
@@ -104,6 +111,6 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUI() {
         Intent homeIntent = new Intent(mActivity, HomeActivity.class);
         startActivity(homeIntent);
-        finishActivity(0);
+        finishAfterTransition();
     }
 }

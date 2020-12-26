@@ -1,7 +1,10 @@
 package com.example.meet_up.service;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.meet_up.api.AuthApi;
@@ -20,29 +23,32 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.HTTP;
 
 public class AuthService {
 
     private static final String TAG = AuthService.class.getSimpleName();
     private static final String AUTH_RELATIVE_URL = "auth/";
     private static final String url = Constants.BASE_URL + AUTH_RELATIVE_URL;
+    private static final String SHARED_PREF_JWT_TOKEN_KEY = "jwt_token";
     private AuthApi api;
 
+    private SharedPreferences mPreference;
     private static AuthService mInstance;
 
     public MutableLiveData<Boolean> mIsLoginSuccess;
-    public MutableLiveData<AuthToken> mAuthToken;
     public MutableLiveData<Boolean> mIsSignUpSuccess;
     public MutableLiveData<String> mResponseMessage;
+    private MutableLiveData<AuthToken> mAuthToken;
 
-    private AuthService() {
+    private AuthService(Context context) {
         mIsLoginSuccess = new MutableLiveData<>();
         mIsSignUpSuccess = new MutableLiveData<>();
         mAuthToken = new MutableLiveData<>();
         mResponseMessage = new MutableLiveData<>();
         mIsLoginSuccess.setValue(Boolean.FALSE);
         mIsSignUpSuccess.setValue(Boolean.FALSE);
+
+        mPreference = context.getSharedPreferences(Constants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         api = new Retrofit.Builder()
                 .baseUrl(url)
@@ -51,8 +57,8 @@ public class AuthService {
                 .create(AuthApi.class);
     }
 
-    public static AuthService getInstance() {
-        if(mInstance == null) mInstance = new AuthService();
+    public static AuthService getInstance(Context context) {
+        if(mInstance == null) mInstance = new AuthService(context.getApplicationContext());
         return mInstance;
     }
 
@@ -120,12 +126,38 @@ public class AuthService {
         if (loginResponse != null) {
             Log.i(TAG, loginResponse.toString());
             mIsLoginSuccess.setValue(Boolean.TRUE);
-            mAuthToken.setValue(new AuthToken(loginResponse.getTokenType(), loginResponse.getAccessToken()));
+            AuthToken authToken = new AuthToken(loginResponse.getTokenType(), loginResponse.getAccessToken());
+            setJWTToken(authToken);
+            mAuthToken.setValue(authToken);
             BasicUserInfo userInfo = new BasicUserInfo(loginResponse.getUserId(),
                     loginResponse.getName(), loginResponse.getEmail());
             UserService.getInstance().setUserInfo(userInfo);
         } else {
             Log.e(TAG, "Login response is null");
         }
+    }
+
+    private void setJWTToken(AuthToken token) {
+        SharedPreferences.Editor sharedEditor = mPreference.edit();
+        sharedEditor.putString(SHARED_PREF_JWT_TOKEN_KEY, token.getAuthToken());
+        sharedEditor.apply();
+    }
+
+    public LiveData<AuthToken> getAuthToken() {
+        if (mAuthToken.getValue() == null) {
+            String token = mPreference.getString(SHARED_PREF_JWT_TOKEN_KEY, null);
+            if (token != null) {
+                AuthToken authToken = new AuthToken(token);
+                mAuthToken.setValue(authToken);
+            }
+        }
+        return mAuthToken;
+    }
+
+    public void signOut() {
+        SharedPreferences.Editor sharedEditor = mPreference.edit();
+        sharedEditor.remove(SHARED_PREF_JWT_TOKEN_KEY);
+        sharedEditor.apply();
+        mAuthToken.setValue(null);
     }
 }

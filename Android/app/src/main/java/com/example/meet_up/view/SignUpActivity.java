@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.example.meet_up.R;
 import com.example.meet_up.databinding.ActivitySignupBinding;
-import com.example.meet_up.view.login.LoginActivity;
 import com.example.meet_up.view_model.SignUpViewModel;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -34,8 +33,8 @@ public class SignUpActivity extends AppCompatActivity {
         mActivity = this;
         mLoading = findViewById(R.id.signup_loading);
 
-        mSignUpViewModel.getResponseMessage().observe(this, this::showToast);
-        mSignUpViewModel.getSignUpSuccess().observe(this, success -> {
+        mSignUpViewModel.getResponseMessage(this).observe(this, this::showToast);
+        mSignUpViewModel.getSignUpSuccess(this).observe(this, success -> {
             if (success) {
                 updateUI();
             }
