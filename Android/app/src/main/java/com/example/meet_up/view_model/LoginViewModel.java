@@ -7,7 +7,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.meet_up.payload.request.EmailSignInRequest;
+import com.example.meet_up.payload.request.GoogleSignInRequest;
 import com.example.meet_up.service.AuthService;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public class LoginViewModel extends ViewModel {
 
@@ -24,10 +26,15 @@ public class LoginViewModel extends ViewModel {
         Log.d(TAG, "onLoginButtonClicked: " + email);
 
         EmailSignInRequest signInRequest = new EmailSignInRequest(email, password);
-        mAuthService.emailLogIn(signInRequest);
+        mAuthService.emailSignIn(signInRequest);
     }
 
     public LiveData<Boolean> isLoginSuccess() {
         return mAuthService.mIsLoginSuccess;
+    }
+
+    public void googleSignIn(GoogleSignInAccount googleAccount) {
+        GoogleSignInRequest request = new GoogleSignInRequest(googleAccount.getIdToken());
+        mAuthService.googleSignIn(request);
     }
 }

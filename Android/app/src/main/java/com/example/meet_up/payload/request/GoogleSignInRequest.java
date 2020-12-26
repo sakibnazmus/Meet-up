@@ -2,13 +2,19 @@ package com.example.meet_up.payload.request;
 
 public class GoogleSignInRequest {
 
-    public String registrationId;
+    public String tokenId;
+    public Long clientTime;
 
-    public GoogleSignInRequest(String registrationId) {
-        this.registrationId = registrationId;
+    public GoogleSignInRequest(String tokenId) {
+        this.tokenId = tokenId;
+        clientTime = System.currentTimeMillis();
     }
 
-    public String getRegistrationId() {
-        return registrationId;
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public Long getClientTime() {
+        return clientTime;
     }
 }

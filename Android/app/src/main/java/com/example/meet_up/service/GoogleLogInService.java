@@ -3,14 +3,9 @@ package com.example.meet_up.service;
 import android.content.Context;
 
 import com.example.meet_up.R;
-import com.example.meet_up.api.AuthApi;
-import com.example.meet_up.util.Constants;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class GoogleLogInService {
 

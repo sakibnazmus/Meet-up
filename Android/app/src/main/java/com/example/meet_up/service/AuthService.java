@@ -8,6 +8,7 @@ import com.example.meet_up.api.AuthApi;
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
 import com.example.meet_up.payload.request.EmailSignInRequest;
+import com.example.meet_up.payload.request.GoogleSignInRequest;
 import com.example.meet_up.payload.request.SignUpRequest;
 import com.example.meet_up.payload.response.ApiResponse;
 import com.example.meet_up.payload.response.LoginResponse;
@@ -55,22 +56,32 @@ public class AuthService {
         return mInstance;
     }
 
-    public void emailLogIn(EmailSignInRequest request) {
-        api.emailLogIn(request).enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                Log.i(TAG, "onResponse: " + response.toString());
-                if (response.isSuccessful()) {
-                    handleLoginResponse(response.body());
-                }
-            }
+    public void emailSignIn(EmailSignInRequest request) {
+        Call<LoginResponse> call = api.emailLogIn(request);
 
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                mIsLoginSuccess.setValue(Boolean.FALSE);
-            }
-        });
     }
+
+   public void googleSignIn(GoogleSignInRequest request) {
+        Call<LoginResponse> call = api.googleLogIn(request);
+        makeSignInRequest(call);
+   }
+
+   private void makeSignInRequest(Call<LoginResponse> call) {
+       call.enqueue(new Callback<LoginResponse>() {
+           @Override
+           public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+               Log.i(TAG, "onResponse: " + response.toString());
+               if (response.isSuccessful()) {
+                   handleLoginResponse(response.body());
+               }
+           }
+
+           @Override
+           public void onFailure(Call<LoginResponse> call, Throwable t) {
+               mIsLoginSuccess.setValue(Boolean.FALSE);
+           }
+       });
+   }
 
     public void signUp(SignUpRequest signUpRequest) {
         api.signUp(signUpRequest).enqueue(new Callback<ApiResponse>() {

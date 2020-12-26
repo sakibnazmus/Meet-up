@@ -124,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             logger.error(e.getLocalizedMessage());
             e.printStackTrace();
         }
-        throw new BadCredentialsException("Please provide valid credentials");
+        throw new BadCredentialsException("Invalid auth token");
     }
 
     @Override

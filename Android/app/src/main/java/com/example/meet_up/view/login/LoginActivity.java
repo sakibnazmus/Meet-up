@@ -63,16 +63,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-//        mGoogleSignInBtn.setOnClickListener(this::googleSignIn);
+        mGoogleSignInBtn.setOnClickListener(this::googleSignIn);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account != null) {
-            updateUI(account);
-        }
     }
 
     @Override
@@ -99,20 +95,9 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            if (account != null) updateUI(account);
+            if (account != null) mLoginViewModel.googleSignIn(account);
         } catch (ApiException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void updateUI(GoogleSignInAccount account) {
-        Log.v(TAG, account.getEmail());
-        Log.v(TAG, account.getDisplayName());
-        Log.v(TAG, account.getId());
-        Log.v(TAG, account.getIdToken());
-
-        if(verifyWithServer(account.getIdToken())) {
-            updateUI();
         }
     }
 
@@ -120,11 +105,5 @@ public class LoginActivity extends AppCompatActivity {
         Intent homeIntent = new Intent(mActivity, HomeActivity.class);
         startActivity(homeIntent);
         finishActivity(0);
-    }
-
-    private boolean verifyWithServer(String idToken) {
-        final GoogleSignInRequest request = new GoogleSignInRequest(idToken);
-
-        return false;
     }
 }
