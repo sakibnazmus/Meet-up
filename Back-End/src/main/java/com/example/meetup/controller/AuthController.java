@@ -2,9 +2,10 @@ package com.example.meetup.controller;
 
 import com.example.meetup.model.User;
 import com.example.meetup.payload.request.EmailLoginRequest;
-import com.example.meetup.payload.request.OAuth2LoginRequest;
+import com.example.meetup.payload.request.GoogleLoginRequest;
 import com.example.meetup.payload.request.SignUpRequest;
 import com.example.meetup.payload.response.ApiResponse;
+import com.example.meetup.payload.response.AuthenticationResponse;
 import com.example.meetup.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +53,8 @@ public class AuthController {
         ));
     }
 
-    @PostMapping("/oauth2/google")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody OAuth2LoginRequest loginRequest) {
+    @PostMapping("/login/oauth2/google")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody GoogleLoginRequest loginRequest) {
         return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest));
     }
-
 }

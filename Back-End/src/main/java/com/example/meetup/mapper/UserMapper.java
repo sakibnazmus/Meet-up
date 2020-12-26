@@ -14,6 +14,5 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(target = "roles", source = "roles")
-    User signUpRequestToUser(SignUpRequest signUpRequest, Set<Role> roles);
+    User signUpRequestToUser(SignUpRequest signUpRequest);
 }
