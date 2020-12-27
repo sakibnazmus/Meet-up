@@ -1,8 +1,11 @@
 package com.example.meetup.config;
 
+import com.example.meetup.model.User;
+import com.example.meetup.repository.UserRepository;
 import com.example.meetup.security.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -18,17 +21,20 @@ import java.util.Optional;
 public class AuditingConfig {
 
     @Bean
-    public AuditorAware<String>auditorProvider() {
+    public AuditorAware<User>auditorProvider() {
         return new AuditorAwareImpl();
     }
 }
 
-class AuditorAwareImpl implements AuditorAware<String> {
+class AuditorAwareImpl implements AuditorAware<User> {
+
+    @Autowired
+    private UserRepository userRepository;
 
     Logger logger = LoggerFactory.getLogger(AuditorAwareImpl.class);
 
     @Override
-    public Optional<String> getCurrentAuditor() {
+    public Optional<User> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null ||
@@ -38,9 +44,7 @@ class AuditorAwareImpl implements AuditorAware<String> {
             return Optional.empty();
         }
 
-        logger.info(authentication.getPrincipal().getClass().getName());
-
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return Optional.ofNullable(userPrincipal.getId());
+        return userRepository.findById(userPrincipal.getId());
     }
 }

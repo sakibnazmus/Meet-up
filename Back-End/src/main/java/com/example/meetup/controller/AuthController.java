@@ -10,6 +10,7 @@ import com.example.meetup.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
+    @Transactional
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if(!authenticationService.checkEmailAvailable(signUpRequest.getEmail()))
             return ResponseEntity.badRequest().body(

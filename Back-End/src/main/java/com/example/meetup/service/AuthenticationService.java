@@ -6,9 +6,6 @@ import com.example.meetup.payload.request.SignUpRequest;
 import com.example.meetup.payload.response.AuthenticationResponse;
 import com.example.meetup.payload.request.EmailLoginRequest;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 public interface AuthenticationService {
     AuthenticationResponse authenticateUser(EmailLoginRequest loginRequest);
 
