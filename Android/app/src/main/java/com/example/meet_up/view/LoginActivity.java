@@ -19,8 +19,6 @@ import android.widget.Toast;
 import com.example.meet_up.R;
 import com.example.meet_up.databinding.ActivityLoginBinding;
 import com.example.meet_up.service.GoogleLogInService;
-import com.example.meet_up.view.HomeActivity;
-import com.example.meet_up.view.SignUpActivity;
 import com.example.meet_up.view_model.LoginViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;

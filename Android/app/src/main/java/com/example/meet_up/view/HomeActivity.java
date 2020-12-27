@@ -3,6 +3,9 @@ package com.example.meet_up.view;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -16,7 +19,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.meet_up.R;
-import com.example.meet_up.view_model.UserProfileViewModel;
+import com.example.meet_up.databinding.ActivityHomeBinding;
+import com.example.meet_up.model.AuthToken;
+import com.example.meet_up.view_model.HomeViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -37,12 +42,15 @@ public class HomeActivity extends AppCompatActivity {
     private GroupListAdapter mGroupListAdapter;
     private GoogleSignInClient mGoogleSignInClient;
 
-    private UserProfileViewModel userViewModel;
+    private HomeViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        ActivityHomeBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_home);
+        mViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        binding.setViewModel(mViewModel);
+        binding.setLifecycleOwner(this);
 
         mSeeCurrentBtn = findViewById(R.id.see_current_btn);
         mAddGroupBtn = findViewById(R.id.add_group_btn);
@@ -73,24 +81,7 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        mSignOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOut();
-            }
-        });
-    }
-
-    private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finishActivity(0);
-                    }
-                });
+        mViewModel.getAuthToken(this).observe(this, getAuthenticationListener());
     }
 
     private OnCompleteListener<Void> addGroupCompletionListener = new OnCompleteListener<Void>() {
@@ -104,6 +95,20 @@ public class HomeActivity extends AppCompatActivity {
             loadingDialog.cancel();
         }
     };
+
+    private Observer<AuthToken> getAuthenticationListener() {
+        return authToken -> {
+            if (authToken == null) {
+                goToLoginPage();
+            }
+        };
+    }
+
+    private void goToLoginPage() {
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finishAfterTransition();
+    }
 
     private void promptForGroupName() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

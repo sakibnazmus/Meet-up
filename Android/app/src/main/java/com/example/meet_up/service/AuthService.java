@@ -33,6 +33,7 @@ public class AuthService {
     private AuthApi api;
 
     private SharedPreferences mPreference;
+    private Context mContext;
     private static AuthService mInstance;
 
     public MutableLiveData<Boolean> mIsLoginSuccess;
@@ -48,7 +49,8 @@ public class AuthService {
         mIsLoginSuccess.setValue(Boolean.FALSE);
         mIsSignUpSuccess.setValue(Boolean.FALSE);
 
-        mPreference = context.getSharedPreferences(Constants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        mContext = context;
+        mPreference = mContext.getSharedPreferences(Constants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         api = new Retrofit.Builder()
                 .baseUrl(url)
@@ -64,7 +66,7 @@ public class AuthService {
 
     public void emailSignIn(EmailSignInRequest request) {
         Call<LoginResponse> call = api.emailLogIn(request);
-
+        makeSignInRequest(call);
     }
 
    public void googleSignIn(GoogleSignInRequest request) {
@@ -131,7 +133,7 @@ public class AuthService {
             mAuthToken.setValue(authToken);
             BasicUserInfo userInfo = new BasicUserInfo(loginResponse.getUserId(),
                     loginResponse.getName(), loginResponse.getEmail());
-            UserService.getInstance().setUserInfo(userInfo);
+            UserService.getInstance(mContext).setUserInfo(userInfo);
         } else {
             Log.e(TAG, "Login response is null");
         }
