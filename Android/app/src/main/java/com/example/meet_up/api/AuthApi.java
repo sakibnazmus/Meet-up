@@ -12,12 +12,12 @@ import retrofit2.http.POST;
 
 public interface AuthApi {
 
-    @POST("login/oauth2/google")
-    Call<LoginResponse> googleLogIn(@Body GoogleSignInRequest request);
+  @POST("login/oauth2/google")
+  Call<LoginResponse> googleLogIn(@Body GoogleSignInRequest request);
 
-    @POST("login/email")
-    Call<LoginResponse> emailLogIn(@Body EmailSignInRequest request);
+  @POST("login/email")
+  Call<LoginResponse> emailLogIn(@Body EmailSignInRequest request);
 
-    @POST("signup")
-    Call<ApiResponse> signUp(@Body SignUpRequest request);
+  @POST("signup")
+  Call<ApiResponse> signUp(@Body SignUpRequest request);
 }

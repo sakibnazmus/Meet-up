@@ -5,30 +5,26 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.meet_up.model.Location;
+import com.example.meet_up.databinding.ActivityMapsBinding;
+import com.example.meet_up.model.BasicUserInfo;
+import com.example.meet_up.model.UserLocation;
 import com.example.meet_up.util.Constants;
-import com.example.meet_up.view_model.GroupLocationListener;
-import com.example.meet_up.service.LocationService;
 import com.example.meet_up.R;
-import com.example.meet_up.model.User;
+import com.example.meet_up.view_model.MapsViewModel;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,131 +37,59 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashMap;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
     private static final String TAG = "MapsActivity";
 
-    private Button mRefreshBtn;
-    private Button mEnableBtn;
-    private Button mSettingsBtn;
-
+    private MapsViewModel mViewModel;
     private GoogleMap mMap;
-
-    private LocationManager mLocationManager;
-
-    private String selectedGroupName;
-
-    private LocationService mService;
-    private boolean mBound = false;
+    private Handler mHandler;
 
     private final static int PERMISSION_FINE_LOCATION = 1;
     private final static int PERMISSION_COARSE_LOCATION = 2;
 
-    private LocationListener mLocationListener;
-    GroupLocationListener mGroupLocationlistener;
+    private final static int TOTAL_NEEDED_PERMISSIONS = 2;
 
-    private Handler handler;
+    private final static int TIME_DELAY_AFTER_MAP_READY = 1000;
 
-    private HashMap<String, Marker> markerHashMap;
+    private String selectedGroupId;
+    private String selectedGroupName;
+
+    private int acquiredPermissions = 0;
+
+    private HashMap<String, Marker> mMarkerHashMap;
+    private UserLocation mUserUserLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        ActivityMapsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_maps);
+        mViewModel = new ViewModelProvider(this).get(MapsViewModel.class);
+        binding.setViewModel(mViewModel);
+        binding.setLifecycleOwner(this);
 
         checkPermissions();
+        if (acquiredPermissions == 2) {
+            mViewModel.startService();
+        }
 
+        selectedGroupId = getIntent().getStringExtra(Constants.INTENT_EXTRA_GROUP_ID);
         selectedGroupName = getIntent().getStringExtra(Constants.INTENT_EXTRA_GROUP_NAME);
+
+        mHandler = new Handler();
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        mRefreshBtn = findViewById(R.id.map_refresh_btn);
-        mEnableBtn = findViewById(R.id.enable_btn);
-        mSettingsBtn = findViewById(R.id.group_settings_btn);
-
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        mRefreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adjustMap();
-            }
-        });
-
-        final SettingsFragment settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.settingFrgmnt);
-        settingsFragment.getView().setVisibility(View.GONE);
-
-        mEnableBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mEnableBtn.setEnabled(false);
-            }
-        });
-
-        mSettingsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(settingsFragment.getView().getVisibility() == View.GONE) {
-                    Log.v(TAG, "Showing Settings");
-                    mapFragment.getView().setVisibility(View.GONE);
-                    settingsFragment.getView().setVisibility(View.VISIBLE);
-                    mSettingsBtn.setText("Map");
-                } else {
-                    Log.v(TAG, "Showing Map");
-                    mapFragment.getView().setVisibility(View.VISIBLE);
-                    settingsFragment.getView().setVisibility(View.GONE);
-                    mSettingsBtn.setText("Settings");
-                }
-            }
-        });
-
-        handler = new Handler();
-
-        mGroupLocationlistener = new GroupLocationListener(this);
     }
-
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
-            mService = binder.getService();
-
-            if (!checkFineLocationPermission() || !checkCoarseLocationPermission()) {
-                Log.v(TAG, "Did not get permission for location update");
-                Toast.makeText(getApplicationContext(), "Sorry!!! You did not give permissions", Toast.LENGTH_LONG);
-                mService.stopService();
-            } else {
-                Log.v(TAG, "Requesting for location update");
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 0.5, mLocationListener);
-            }
-
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mLocationManager.removeUpdates(mLocationListener);
-            mLocationListener = null;
-            mBound = false;
-        }
-    };
 
 
     @Override
     protected void onStart() {
         super.onStart();
-    }
-
-    private Intent getServiceIntent() {
-        Intent serviceIntent = new Intent(MapsActivity.this, LocationService.class);
-        return serviceIntent;
     }
 
     /**
@@ -179,46 +103,58 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.v(TAG, "onMapReady");
         mMap = googleMap;
-        markerHashMap = new HashMap<>();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                adjustMap();
-            }
-        }, 1000);
+        mMap.setOnMapLoadedCallback(this);
+        mMarkerHashMap = new HashMap<>();
+        mHandler.postDelayed(this::adjustMap, TIME_DELAY_AFTER_MAP_READY);
     }
 
-    public void adjustMap(View view) {
-        adjustMap();
+    @Override
+    public void onMapLoaded() {
+        mViewModel.getUserLocation().observe(this, getCurrentLocationObserver());
     }
 
-    //need to adjust map
+    public void updateMap(BasicUserInfo basicInfo, UserLocation userLocation) {
+        Log.v(TAG, "User: " + basicInfo.getName() +"\n" + "userLocation: " + userLocation.toString());
+        if (userLocation.isInvalid()) return;
+        int hashMapPrevSize = mMarkerHashMap.size();
+        LatLng latLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+        if(mMarkerHashMap.containsKey(basicInfo.getUserId())) {
+            Marker prevMarker = mMarkerHashMap.get(basicInfo.getUserId());
+            prevMarker.remove();
+        }
+        Marker newMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(basicInfo.getName()));
+        mMarkerHashMap.put(basicInfo.getUserId(), newMarker);
+
+        if(mMarkerHashMap.size() != hashMapPrevSize) {
+            adjustMap();
+        }
+    }
+
     private void adjustMap() {
-        if(markerHashMap.size() < 1) return;
+        if(mMarkerHashMap.size() < 1) return;
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Marker marker: markerHashMap.values()) {
+        for (Marker marker: mMarkerHashMap.values()) {
             builder.include(marker.getPosition());
         }
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(builder.build(), 10);
         mMap.animateCamera(cameraUpdate);
     }
 
-    public void updateMap(User user) {
-        int hashMapPrevSize = markerHashMap.size();
-        Location userLocation = user.getLocation();
-        LatLng latLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-        if(markerHashMap.containsKey(user.getUserId())) {
-            Marker prevMarker = markerHashMap.get(user.getUserId());
-            prevMarker.remove();
-        }
-        Marker newMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getUserId()));
-        markerHashMap.put(user.getUserId(), newMarker);
+    public void onRefreshButtonClicked(View view) {
+        adjustMap();
+    }
 
-        if(markerHashMap.size() != hashMapPrevSize) {
-            adjustMap();
-        }
+    private Observer<Pair<BasicUserInfo, UserLocation>> getCurrentLocationObserver() {
+        return pair -> {
+            if (pair.second != null) {
+                mUserUserLocation = pair.second;
+                updateMap(pair.first, mUserUserLocation);
+                adjustMap();
+            }
+        };
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -226,6 +162,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
+        acquiredPermissions++;
         return true;
     }
 
@@ -234,6 +171,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
+        acquiredPermissions++;
         return true;
     }
 
@@ -244,7 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void requestCoarseLocationPermission() {
         ActivityCompat.requestPermissions(MapsActivity.this, new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+                Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_COARSE_LOCATION);
     }
 
 
@@ -266,10 +204,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (requestCode) {
             case PERMISSION_FINE_LOCATION:
                 Toast.makeText(this, "Got Permission FINE LOCATION", Toast.LENGTH_LONG);
+                acquiredPermissions++;
                 break;
             case PERMISSION_COARSE_LOCATION:
+                acquiredPermissions++;
                 Toast.makeText(this, "Got Permission COARSE LOCATION", Toast.LENGTH_LONG);
                 break;
+        }
+
+        if (acquiredPermissions == TOTAL_NEEDED_PERMISSIONS) {
+            mViewModel.startService();
         }
     }
 }

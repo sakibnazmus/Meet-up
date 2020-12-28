@@ -1,14 +1,18 @@
 package com.example.meet_up.model;
 
-public class Location {
+public class UserLocation {
+
     private double latitude = 91.0;
     private double longitude = 181.0;
-    public Location(float latitude, float longitude) {
+    public UserLocation(float latitude, float longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public Location() {}
+    public UserLocation(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public double getLatitude() {
         return latitude;
@@ -28,5 +32,10 @@ public class Location {
 
     public boolean isInvalid() {
         return this.latitude > 90 || this.longitude > 180;
+    }
+
+    @Override
+    public String toString() {
+        return "latitude=" + latitude + ", longitude=" + longitude;
     }
 }

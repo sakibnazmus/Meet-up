@@ -6,27 +6,24 @@ public class User {
 
     private String userId;
     private String email;
-    private Location location;
+    private UserLocation userLocation;
     private String username;
     private boolean enabled;
-    private IndividualLocationListener locationUpdater;
 
     public User (String userId) {
         this.userId = userId;
-        this.location = new Location();
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public Location getLocation() {
-        return location;
+    public UserLocation getUserLocation() {
+        return userLocation;
     }
 
-    public void setLocation(float latitude, float longitude) {
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
+    public void setUserLocation(float latitude, float longitude) {
+        userLocation = new UserLocation(latitude, longitude);
     }
 
     public void setUsername(String username) {
@@ -45,19 +42,11 @@ public class User {
         this.enabled = enabled;
     }
 
-    public void setLocationUpdater(IndividualLocationListener locationUpdater) {
-        this.locationUpdater = locationUpdater;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public IndividualLocationListener getLocationUpdater() {
-        return locationUpdater;
     }
 }

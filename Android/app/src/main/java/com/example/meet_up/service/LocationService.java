@@ -1,22 +1,29 @@
 package com.example.meet_up.service;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Binder;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
-public class LocationService extends Service {
+import com.example.meet_up.model.BasicUserInfo;
+import com.example.meet_up.model.UserLocation;
+
+public class LocationService extends Service implements LocationListener {
 
     private static final String TAG = "LocationService";
+
+    public MutableLiveData<UserLocation> userLocation;
+
+    private Observer<BasicUserInfo> userInfoObserver;
+    private String currentUserId;
 
     public class LocationBinder extends Binder {
         public LocationService getService() {
@@ -31,21 +38,26 @@ public class LocationService extends Service {
         super.onCreate();
         Log.v(TAG, "OnCreate()");
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "my_channel_01";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "Meet Up",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+        userLocation = new MutableLiveData<>();
 
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+//        if (Build.VERSION.SDK_INT >= 26) {
+//            String CHANNEL_ID = "my_channel_01";
+//            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+//                    "Meet Up",
+//                    NotificationManager.IMPORTANCE_DEFAULT);
+//
+//            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+//
+//            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+//                    .setContentTitle("Meet Up")
+//                    .setContentText("This app is uploading your location in background")
+//                    .build();
+//
+//            startForeground(1, notification);
+//        }
 
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("Meet Up")
-                    .setContentText("This app is uploading your location in background")
-                    .build();
-
-            startForeground(1, notification);
-        }
+        userInfoObserver = userInfo -> currentUserId = userInfo.getUserId();
+        UserService.getInstance(this).getUserInfo().observeForever(userInfoObserver);
     }
 
     @Override
@@ -68,5 +80,28 @@ public class LocationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        UserService.getInstance(this).getUserInfo().removeObserver(userInfoObserver);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.v(TAG, "onLocationChanged: " + location.getLatitude() + " " + location.getLongitude());
+        UserLocation current = new UserLocation(location.getLatitude(), location.getLongitude());
+        userLocation.setValue(current);
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+        Log.v(TAG, "onStatusChanged: " + s);
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+        Log.v(TAG, "onProviderEnabled: " + s);
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+        Log.v(TAG, "onProviderDisabled");
     }
 }
