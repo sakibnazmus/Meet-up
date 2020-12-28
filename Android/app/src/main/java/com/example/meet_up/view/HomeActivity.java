@@ -8,7 +8,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 import com.example.meet_up.R;
 import com.example.meet_up.databinding.ActivityHomeBinding;
 import com.example.meet_up.model.AuthToken;
-import com.example.meet_up.service.GroupService;
 import com.example.meet_up.view_model.HomeViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,13 +28,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
-
 public class HomeActivity extends AppCompatActivity {
 
     private Button mSeeCurrentBtn;
     private ListView mGroupsListView;
-    private Button mSignOutBtn;
 
     private HomeActivity mActivity;
     private ProgressDialog loadingDialog;
@@ -58,18 +53,14 @@ public class HomeActivity extends AppCompatActivity {
 
         mSeeCurrentBtn = findViewById(R.id.see_current_btn);
         mGroupsListView = findViewById(R.id.groups_lv);
-        mSignOutBtn = findViewById(R.id.sign_out_btn);
 
-        mSeeCurrentBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent mapIntent = new Intent(HomeActivity.this, MapsActivity.class);
-                startActivity(mapIntent);
-                finishActivity(0);
-            }
+        mSeeCurrentBtn.setOnClickListener(view -> {
+            Intent mapIntent = new Intent(HomeActivity.this, MapsActivity.class);
+            startActivity(mapIntent);
+            finishActivity(0);
         });
 
-        mGroupListAdapter = new GroupListAdapter(this, R.layout.group_list_view, new ArrayList<String>());
+        mGroupListAdapter = new GroupListAdapter(this, R.layout.group_list_view);
         mGroupsListView.setAdapter(mGroupListAdapter);
 
         GoogleSignInOptions gso =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -78,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         mViewModel.getAuthToken(this).observe(this, getAuthenticationListener());
+        mViewModel.getGroupList().observe(this, mGroupListAdapter);
     }
 
     private OnCompleteListener<Void> addGroupCompletionListener = new OnCompleteListener<Void>() {

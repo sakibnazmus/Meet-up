@@ -10,16 +10,17 @@ import com.example.meet_up.api.GroupApi;
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.payload.request.GroupCreateRequest;
 import com.example.meet_up.payload.response.ApiResponse;
+import com.example.meet_up.payload.response.GroupSummaryResponse;
 import com.example.meet_up.util.Constants;
 
 import java.io.IOException;
+import java.util.List;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -38,7 +39,6 @@ public class GroupService {
 //            requestBuilder.addHeader(Constants.HEADER_CONTENT_TYPE_JSON, Constants.HEADER_CONTENT_TYPE_JSON);
             AuthToken token = AuthService.getInstance(context).getAuthToken().getValue();
             requestBuilder.addHeader(Constants.HEADER_KEY_AUTHORIZATION, token.getAuthToken());
-            Log.v(TAG, token.getAuthToken());
             return chain.proceed(requestBuilder.build());
         }).build();
 
@@ -79,5 +79,25 @@ public class GroupService {
             }
         });
         return responseData;
+    }
+
+    public LiveData<List<GroupSummaryResponse>> getGroupList() {
+        MutableLiveData<List<GroupSummaryResponse>> groupListLiveData = new MutableLiveData<>();
+        api.getGroupList().enqueue(new Callback<List<GroupSummaryResponse>>() {
+            @Override
+            public void onResponse(Call<List<GroupSummaryResponse>> call, Response<List<GroupSummaryResponse>> response) {
+                if (response.isSuccessful()) {
+                    groupListLiveData.setValue(response.body());
+                } else {
+                    Log.e(TAG, response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<GroupSummaryResponse>> call, Throwable t) {
+                Log.e(TAG, t.getLocalizedMessage());
+            }
+        });
+        return groupListLiveData;
     }
 }

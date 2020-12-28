@@ -11,9 +11,12 @@ import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
 import com.example.meet_up.payload.request.GroupCreateRequest;
 import com.example.meet_up.payload.response.ApiResponse;
+import com.example.meet_up.payload.response.GroupSummaryResponse;
 import com.example.meet_up.service.AuthService;
 import com.example.meet_up.service.GroupService;
 import com.example.meet_up.service.UserService;
+
+import java.util.List;
 
 public class HomeViewModel extends AndroidViewModel {
 
@@ -47,5 +50,9 @@ public class HomeViewModel extends AndroidViewModel {
 
     public LiveData<String> createNewGroup(String groupName) {
         return GroupService.getInstance(mContext).createNewGroup(new GroupCreateRequest(groupName));
+    }
+
+    public LiveData<List<GroupSummaryResponse>> getGroupList() {
+        return GroupService.getInstance(mContext).getGroupList();
     }
 }

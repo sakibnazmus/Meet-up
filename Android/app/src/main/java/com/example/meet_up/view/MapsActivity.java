@@ -189,8 +189,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }, 1000);
     }
 
+    public void adjustMap(View view) {
+        adjustMap();
+    }
+
     //need to adjust map
-    public void adjustMap() {
+    private void adjustMap() {
         if(markerHashMap.size() < 1) return;
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
