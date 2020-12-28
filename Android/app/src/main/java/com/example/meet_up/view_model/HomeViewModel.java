@@ -9,7 +9,10 @@ import androidx.lifecycle.LiveData;
 
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
+import com.example.meet_up.payload.request.GroupCreateRequest;
+import com.example.meet_up.payload.response.ApiResponse;
 import com.example.meet_up.service.AuthService;
+import com.example.meet_up.service.GroupService;
 import com.example.meet_up.service.UserService;
 
 public class HomeViewModel extends AndroidViewModel {
@@ -40,5 +43,9 @@ public class HomeViewModel extends AndroidViewModel {
 
     public void signOut(View view) {
         AuthService.getInstance(view.getContext()).signOut();
+    }
+
+    public LiveData<String> createNewGroup(String groupName) {
+        return GroupService.getInstance(mContext).createNewGroup(new GroupCreateRequest(groupName));
     }
 }

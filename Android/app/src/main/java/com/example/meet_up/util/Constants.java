@@ -6,4 +6,8 @@ public class Constants {
 
     public static final String SAVED_STATE_KEY_USER_ID = "userId";
     public static final String SHARED_PREF_NAME = "meet_up_pref";
+
+    public static final String HEADER_KEY_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_CONTENT_TYPE_JSON = "application/json";
+    public static final String HEADER_KEY_AUTHORIZATION = "Authorization";
 }

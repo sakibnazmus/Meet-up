@@ -17,10 +17,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.meet_up.R;
 import com.example.meet_up.databinding.ActivityHomeBinding;
 import com.example.meet_up.model.AuthToken;
+import com.example.meet_up.service.GroupService;
 import com.example.meet_up.view_model.HomeViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,10 +35,10 @@ import java.util.ArrayList;
 public class HomeActivity extends AppCompatActivity {
 
     private Button mSeeCurrentBtn;
-    private Button mAddGroupBtn;
     private ListView mGroupsListView;
     private Button mSignOutBtn;
 
+    private HomeActivity mActivity;
     private ProgressDialog loadingDialog;
 
     private GroupListAdapter mGroupListAdapter;
@@ -52,8 +54,9 @@ public class HomeActivity extends AppCompatActivity {
         binding.setViewModel(mViewModel);
         binding.setLifecycleOwner(this);
 
+        mActivity = this;
+
         mSeeCurrentBtn = findViewById(R.id.see_current_btn);
-        mAddGroupBtn = findViewById(R.id.add_group_btn);
         mGroupsListView = findViewById(R.id.groups_lv);
         mSignOutBtn = findViewById(R.id.sign_out_btn);
 
@@ -68,13 +71,6 @@ public class HomeActivity extends AppCompatActivity {
 
         mGroupListAdapter = new GroupListAdapter(this, R.layout.group_list_view, new ArrayList<String>());
         mGroupsListView.setAdapter(mGroupListAdapter);
-
-        mAddGroupBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                promptForGroupName();
-            }
-        });
 
         GoogleSignInOptions gso =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -110,7 +106,7 @@ public class HomeActivity extends AppCompatActivity {
         finishAfterTransition();
     }
 
-    private void promptForGroupName() {
+    public void promptForGroupName(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Title");
 
@@ -118,21 +114,17 @@ public class HomeActivity extends AppCompatActivity {
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final String groupName = input.getText().toString();
-                Log.v("Group Name",  input.getText().toString());
-                loadingDialog = ProgressDialog.show(HomeActivity.this,
-                        "Creating Group", "Loading, Please wait...", true);
-            }
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            final String groupName = input.getText().toString();
+            loadingDialog = ProgressDialog.show(HomeActivity.this,
+                    "Creating Group", "Loading, Please wait...", true);
+            mViewModel.createNewGroup(groupName).observe(mActivity , response -> {
+                Toast.makeText(mActivity, response, Toast.LENGTH_LONG).show();
+                loadingDialog.cancel();
+            });
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
     }
