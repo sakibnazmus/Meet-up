@@ -4,15 +4,13 @@ public class UserLocation {
 
     private double latitude = 91.0;
     private double longitude = 181.0;
-    public UserLocation(float latitude, float longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
 
     public UserLocation(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public UserLocation() {}
 
     public double getLatitude() {
         return latitude;

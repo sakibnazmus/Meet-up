@@ -7,6 +7,8 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.meet_up.model.BasicUserInfo;
+import com.example.meet_up.model.UserLocation;
+import com.example.meet_up.payload.request.LocationUpdateRequest;
 import com.example.meet_up.util.Constants;
 
 public class UserService {
@@ -49,6 +51,10 @@ public class UserService {
             }
         }
         return mUserInfo;
+    }
+
+    public void updateUserLocation(UserLocation location) {
+
     }
 
     public static UserService getInstance(Context context) {

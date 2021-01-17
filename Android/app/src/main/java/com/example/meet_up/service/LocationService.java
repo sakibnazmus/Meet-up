@@ -23,6 +23,7 @@ public class LocationService extends Service implements LocationListener {
     public MutableLiveData<UserLocation> userLocation;
 
     private Observer<BasicUserInfo> userInfoObserver;
+    private Observer<UserLocation> userLocationObserver;
     private String currentUserId;
 
     public class LocationBinder extends Binder {
@@ -39,6 +40,9 @@ public class LocationService extends Service implements LocationListener {
         Log.v(TAG, "OnCreate()");
 
         userLocation = new MutableLiveData<>();
+
+        userLocationObserver = userLocation -> UserService.getInstance(getApplicationContext()).updateUserLocation(userLocation);
+        userLocation.observeForever(userLocationObserver);
 
 //        if (Build.VERSION.SDK_INT >= 26) {
 //            String CHANNEL_ID = "my_channel_01";
@@ -81,13 +85,15 @@ public class LocationService extends Service implements LocationListener {
     public void onDestroy() {
         super.onDestroy();
         UserService.getInstance(this).getUserInfo().removeObserver(userInfoObserver);
+        userLocation.removeObserver(userLocationObserver);
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.v(TAG, "onLocationChanged: " + location.getLatitude() + " " + location.getLongitude());
-        UserLocation current = new UserLocation(location.getLatitude(), location.getLongitude());
-        userLocation.setValue(current);
+//        UserLocation current = new UserLocation(location.getLatitude(), location.getLongitude());
+        userLocation.getValue().setLatitude(location.getLatitude());
+        userLocation.getValue().setLongitude(location.getLongitude());
     }
 
     @Override
