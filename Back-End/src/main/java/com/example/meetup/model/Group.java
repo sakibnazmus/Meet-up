@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
-import java.util.HashSet;
 
 @Document(collection = "groups")
 @Getter @Setter
@@ -29,6 +28,8 @@ public class Group extends UserDateAudit {
 
     @DBRef(lazy = true)
     private User admin;
+
+    private UserLocation destination;
 
     public void addMember(User member) {
         members.add(member);

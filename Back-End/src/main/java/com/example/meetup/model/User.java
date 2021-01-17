@@ -38,6 +38,8 @@ public class User extends DateAudit {
     @DBRef
     private Set<Role> roles = new HashSet<>();
 
+    private UserLocation location;
+
     @NotNull
     private AuthProvider provider;
 
