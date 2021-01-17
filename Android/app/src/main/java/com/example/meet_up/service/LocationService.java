@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.meet_up.model.BasicUserInfo;
+import com.example.meet_up.model.User;
 import com.example.meet_up.model.UserLocation;
 
 public class LocationService extends Service implements LocationListener {
@@ -40,7 +41,6 @@ public class LocationService extends Service implements LocationListener {
         Log.v(TAG, "OnCreate()");
 
         userLocation = new MutableLiveData<>();
-
         userLocationObserver = userLocation -> UserService.getInstance(getApplicationContext()).updateUserLocation(userLocation);
         userLocation.observeForever(userLocationObserver);
 
@@ -92,8 +92,12 @@ public class LocationService extends Service implements LocationListener {
     public void onLocationChanged(Location location) {
         Log.v(TAG, "onLocationChanged: " + location.getLatitude() + " " + location.getLongitude());
 //        UserLocation current = new UserLocation(location.getLatitude(), location.getLongitude());
-        userLocation.getValue().setLatitude(location.getLatitude());
-        userLocation.getValue().setLongitude(location.getLongitude());
+        if (userLocation.getValue() == null) {
+            userLocation.setValue(new UserLocation(location.getLatitude(), location.getLongitude()));
+        } else {
+            userLocation.getValue().setLatitude(location.getLatitude());
+            userLocation.getValue().setLongitude(location.getLongitude());
+        }
     }
 
     @Override

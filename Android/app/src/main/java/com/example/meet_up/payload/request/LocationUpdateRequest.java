@@ -1,5 +1,7 @@
 package com.example.meet_up.payload.request;
 
+import com.example.meet_up.model.UserLocation;
+
 public class LocationUpdateRequest {
 
     private double latitude;
@@ -8,6 +10,11 @@ public class LocationUpdateRequest {
     public LocationUpdateRequest(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public LocationUpdateRequest(UserLocation location) {
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
     }
 
     public double getLatitude() {
