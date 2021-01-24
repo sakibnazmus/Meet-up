@@ -6,7 +6,6 @@ import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.meet_up.api.GroupApi;
 import com.example.meet_up.api.UserApi;
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
@@ -26,8 +25,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class UserService {
 
     private static final String TAG = UserService.class.getSimpleName();
-    private static final String GROUP_RELATIVE_URL = "users/";
-    private static final String url = Constants.BASE_URL + GROUP_RELATIVE_URL;
+    private static final String USER_RELATIVE_URL = "user/";
+    private static final String url = Constants.BASE_URL + USER_RELATIVE_URL;
     private static UserService mInstance;
     private MutableLiveData<BasicUserInfo> mUserInfo;
     private UserApi api;
@@ -82,6 +81,7 @@ public class UserService {
     }
 
     public void updateUserLocation(UserLocation location) {
+        Log.v(TAG, "Updating user location");
         LocationUpdateRequest request = new LocationUpdateRequest(location);
         api.updateUserLocation(request).enqueue(new Callback<ApiResponse>() {
             @Override

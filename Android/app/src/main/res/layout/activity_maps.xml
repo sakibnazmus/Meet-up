@@ -22,22 +22,20 @@
             android:weightSum="3">
 
             <Button
-                android:id="@+id/map_refresh_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Refresh"
-                android:onClick="onRefreshButtonClicked"
+                android:onClick="@{viewModel.onRefreshButtonClicked}"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAllCaps="false"/>
             <Button
-                android:id="@+id/enable_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Enable"
+                android:text="@{viewModel.enableButtonText}"
                 android:layout_weight="1"
-                android:enabled="false"
                 android:gravity="center"
+                android:onClick="@{viewModel.onEnableButtonClicked}"
                 android:textAllCaps="false"/>
             <Button
                 android:id="@+id/group_settings_btn"

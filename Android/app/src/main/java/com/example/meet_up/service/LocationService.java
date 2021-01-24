@@ -1,5 +1,6 @@
 package com.example.meet_up.service;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
@@ -13,15 +14,17 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.example.meet_up.manager.MeetUpNotificationManager;
 import com.example.meet_up.model.BasicUserInfo;
-import com.example.meet_up.model.User;
 import com.example.meet_up.model.UserLocation;
 
 public class LocationService extends Service implements LocationListener {
 
+    private static final int ONGOING_NOTIFICATION_ID = 1;
     private static final String TAG = "LocationService";
 
     public MutableLiveData<UserLocation> userLocation;
+    public MutableLiveData<Boolean> isForeground;
 
     private Observer<BasicUserInfo> userInfoObserver;
     private Observer<UserLocation> userLocationObserver;
@@ -41,6 +44,8 @@ public class LocationService extends Service implements LocationListener {
         Log.v(TAG, "OnCreate()");
 
         userLocation = new MutableLiveData<>();
+        isForeground = new MutableLiveData<>();
+        isForeground.setValue(false);
         userLocationObserver = userLocation -> UserService.getInstance(getApplicationContext()).updateUserLocation(userLocation);
         userLocation.observeForever(userLocationObserver);
 
@@ -48,9 +53,9 @@ public class LocationService extends Service implements LocationListener {
 //            String CHANNEL_ID = "my_channel_01";
 //            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
 //                    "Meet Up",
-//                    NotificationManager.IMPORTANCE_DEFAULT);
+//                    MeetUpNotificationManager.IMPORTANCE_DEFAULT);
 //
-//            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+//            ((MeetUpNotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 //
 //            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
 //                    .setContentTitle("Meet Up")
@@ -98,6 +103,13 @@ public class LocationService extends Service implements LocationListener {
             userLocation.getValue().setLatitude(location.getLatitude());
             userLocation.getValue().setLongitude(location.getLongitude());
         }
+    }
+
+    public void makeForeground() {
+        Notification notification = MeetUpNotificationManager.getInstance(this)
+                .getOngoingNotificationBuilder().build();
+        this.startForeground(ONGOING_NOTIFICATION_ID, notification);
+        isForeground.setValue(true);
     }
 
     @Override

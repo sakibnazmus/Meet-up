@@ -143,10 +143,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.animateCamera(cameraUpdate);
     }
 
-    public void onRefreshButtonClicked(View view) {
-        adjustMap();
-    }
-
     private Observer<Pair<BasicUserInfo, UserLocation>> getCurrentLocationObserver() {
         return pair -> {
             if (pair.second != null) {

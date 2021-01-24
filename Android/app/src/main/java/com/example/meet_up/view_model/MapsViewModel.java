@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.IBinder;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -26,6 +28,8 @@ public class MapsViewModel extends AndroidViewModel {
 
     private static final String SETTINGS_BUTTON_TEXT_SETTINGS = "Settings";
     private static final String SETTINGS_BUTTON_TEXT_MAP = "Map";
+    private static final String ENABLE_BUTTON_TEXT_ENABLE = "enable";
+    private static final String ENABLE_BUTTON_TEXT_DISABLE = "disable";
 
     private Context mContext;
     private LocationManager mLocationManager;
@@ -37,7 +41,9 @@ public class MapsViewModel extends AndroidViewModel {
     private MutableLiveData<Pair<BasicUserInfo, UserLocation>> locationWithId;
 
     public boolean isSettingsVisible;
+    public boolean isEnabled;
     public String settingsButtonText;
+    public String enableButtonText;
 
     public MapsViewModel(@NonNull Application application) {
         super(application);
@@ -45,7 +51,9 @@ public class MapsViewModel extends AndroidViewModel {
         mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
         isSettingsVisible = false;
+        isEnabled = false;
         settingsButtonText = SETTINGS_BUTTON_TEXT_SETTINGS;
+        enableButtonText = ENABLE_BUTTON_TEXT_ENABLE;
 
         locationWithId = new MutableLiveData<>();
 
@@ -59,6 +67,11 @@ public class MapsViewModel extends AndroidViewModel {
                         locationWithId.setValue(Pair.create(Objects.requireNonNull(locationWithId.getValue()).first, userLocation)));
 
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 0.5, mService);
+                mService.isForeground.observeForever(enabled -> {
+                    isEnabled = enabled;
+                    if (enabled) enableButtonText = ENABLE_BUTTON_TEXT_DISABLE;
+                    else enableButtonText = ENABLE_BUTTON_TEXT_ENABLE;
+                });
                 mBound = true;
             }
 
@@ -82,6 +95,20 @@ public class MapsViewModel extends AndroidViewModel {
 
     public LiveData<Pair<BasicUserInfo, UserLocation>> getUserLocation() {
         return locationWithId;
+    }
+
+    public void onEnableButtonClicked(View view) {
+        if (!isEnabled)
+            mService.makeForeground();
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mService.stopForeground(0);
+            }
+        }
+    }
+
+    public void onRefreshButtonClicked(View view) {
+
     }
 
     public boolean isServiceRunning() {

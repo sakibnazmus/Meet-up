@@ -9,6 +9,6 @@ import retrofit2.http.POST;
 
 public interface UserApi {
 
-    @POST("/location/update")
+    @POST("location/update")
     Call<ApiResponse> updateUserLocation(@Body LocationUpdateRequest request);
 }
