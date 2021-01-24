@@ -32,6 +32,8 @@ public class LocationUpdaterServiceImpl implements LocationUpdaterService {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "userId", currentUser.getId()));
 
+        logger.info("Updating location for user: " + user.getName());
+
         UserLocation location = LocationMapper.INSTANCE.locationRequestToLocation(locationRequest);
         user.setLocation(location);
         userRepository.save(user);

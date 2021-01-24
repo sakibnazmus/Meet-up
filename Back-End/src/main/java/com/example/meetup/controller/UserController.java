@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/user")
+@RestController
 public class UserController {
 
     @Autowired
@@ -20,6 +22,7 @@ public class UserController {
     @PostMapping("/location/update")
     public ResponseEntity<?> updateUserLocation(@CurrentUser UserPrincipal currentUser,
                                                 @RequestBody UserLocationRequest locationUpdateRequest) {
+
         return ResponseEntity.ok(locationUpdaterService.updateUserLocation(currentUser, locationUpdateRequest));
     }
 }
