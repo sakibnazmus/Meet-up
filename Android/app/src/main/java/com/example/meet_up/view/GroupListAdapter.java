@@ -36,7 +36,6 @@ public class GroupListAdapter extends BaseAdapter implements Observer<List<Group
                 mapsIntent.putExtra(Constants.INTENT_EXTRA_GROUP_ID, groupId);
                 mapsIntent.putExtra(Constants.INTENT_EXTRA_GROUP_NAME, groupName);
                 mActivity.startActivity(mapsIntent);
-                mActivity.finishAfterTransition();
             });
         }
 

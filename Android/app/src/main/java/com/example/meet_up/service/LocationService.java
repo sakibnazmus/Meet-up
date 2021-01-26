@@ -97,12 +97,8 @@ public class LocationService extends Service implements LocationListener {
     public void onLocationChanged(Location location) {
         Log.v(TAG, "onLocationChanged: " + location.getLatitude() + " " + location.getLongitude());
 //        UserLocation current = new UserLocation(location.getLatitude(), location.getLongitude());
-        if (userLocation.getValue() == null) {
-            userLocation.setValue(new UserLocation(location.getLatitude(), location.getLongitude()));
-        } else {
-            userLocation.getValue().setLatitude(location.getLatitude());
-            userLocation.getValue().setLongitude(location.getLongitude());
-        }
+
+        userLocation.setValue(new UserLocation(location.getLatitude(), location.getLongitude()));
     }
 
     public void makeForeground() {
@@ -110,6 +106,11 @@ public class LocationService extends Service implements LocationListener {
                 .getOngoingNotificationBuilder().build();
         this.startForeground(ONGOING_NOTIFICATION_ID, notification);
         isForeground.setValue(true);
+    }
+
+    public void stopForeground() {
+        stopForeground(true);
+        isForeground.setValue(false);
     }
 
     @Override

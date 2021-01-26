@@ -10,7 +10,6 @@ import androidx.lifecycle.LiveData;
 import com.example.meet_up.model.AuthToken;
 import com.example.meet_up.model.BasicUserInfo;
 import com.example.meet_up.payload.request.GroupCreateRequest;
-import com.example.meet_up.payload.response.ApiResponse;
 import com.example.meet_up.payload.response.GroupSummaryResponse;
 import com.example.meet_up.service.AuthService;
 import com.example.meet_up.service.GroupService;
